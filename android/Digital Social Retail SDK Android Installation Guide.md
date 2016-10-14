@@ -294,7 +294,7 @@ Synchronize your build.gradle to apply the modifications.
 ```
 Congratulations, you already integrated Digital Social Retail SDK in to your application.   -
 
-## 3. Test your app
+## Test your app
 
 To do so, you need to have one Social Retail beacon with you, configured with a notification message, near your device. Make sure to have internet connexion in your device and Bluetooth activated. Launch your app, accept to receive notifications and after 1-5 seconds, you should receive the notification. Then tap on ok and you should see the Ad in full screen. Tap on the button Cancel in the header and the Ad should disappear.
 

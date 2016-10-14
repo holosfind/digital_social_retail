@@ -1,304 +1,168 @@
 ![DSR logo](http://cloud.digitalsocialretail.com/img/logo-long-v2.png)
 
-# Digital Social Retail SDK Android Installation Guide
+# Digital Social Retail SDK Ios Installation Guide
 Technical support: support@digitalsocialretail.com
 
-Last production version : 2.0.1 - 14 october 2016
+Last production version : 2.1.1 - 10 april 2016
 
 
 ## 1. Introduction
 
-This document is destined to the Android developer of your app and will guide him to install Digital Social Retail SDK in to your android  app. The operation should be really simple, because you just need to add entry points into your build.gradle files , Application Class  , Manifest and Main Activities . No other files will be modified.
+This document is destined to the iOS developer of your app and will guide him to install Digital Social Retail SDK in to your iOS app. The operation should be really simple, because you just need to add entry points into your AppDelegate.h, AppDelegate.m and info.Plist files. No other files will be modified.
 
-Requirements: **Android 4.3 or later**
+Requirements: 
+  - Xcode 6 or later
+  - The SDK is compatible with iOS 7.1 or later
+
+## Getting started
+
+[x] Download and Unzip this file : <a>Download</a>
+It contains 2 files:
+- **SocialRetailSRSDK.framework**: this file contains the public headers that will be used to integrate the sdk in to your application.
+- **SocialRetailSRSDK.bundle**: This file contains the settings and the Ad view file.
+
+[x] Open your Xcode project
+
+[x] Drag and drop those 2 files inside your project root. In the popup, choose “Copy items if needed”
+
+[x] Build settings: Go to your application Targets ->Build Settings ->Other Linker Flags and set it to: *-all_load -ObjC* like indicated in this screenshot:
+![DSR build settings](res/build-settings.png)
+
+## info.Plist settings
+
+[x] ]Add these rows :
+
+- **NSLocationAlwaysUsageDescription** : <put your text, You can customise the text of the field NSLocationAlwaysUsageDescription>
+- **Required background modes > Item 0 : App downloads content from the internet**
+- **App Transport Security Settings > Allow Arbitrary Loads : YES**
+
+Your info.plist should looks like:
+![DSR build settings](res/info-plist.png)
 
 
-## 2. Step by Step instructions 
 
-[x] In the **project build.gradle** file, add the maven Social Retail SDK url :
 
-```javascript
-allprojects {  
-  repositories {  
-       ...
-       maven {
-		...
-        url "https://digitalsocialretail.s3.amazonaws.com/sdk/android/prod"
-       }
-   }
+
+
+
+## Modifications to AppDelgate.h
+
+[x] Import the SDK headers: Add these 3 imports:
+
+```c#
+#import <SocialRetailSRSDK/SRBeaconDelegate.h>
+#import <SocialRetailSRSDK/SRBeaconManager.h>
+#import <SocialRetailSRSDK/SRWebViewController.h>
+```
+
+[x] Set the protocol SRBeaconDelegate like this:
+```c#
+@interface AppDelegate : NSObject <…,SRBeaconDelegate>
+```
+
+## Modifications to AppDelegate.m
+
+
+[x] Main entry point:
+
+```c#
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+    //Add these lines in the beginning of this method
+    [[SRBeaconManager sharedManager]startBeconDetection];
+    [[SRBeaconManager sharedManager]setBeaconDelegate:self];
+    if ([UIApplication instancesRespondToSelector:@selector(registerUserNotificationSettings:)]) {
+        [[UIApplication sharedApplication] registerUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:UIUserNotificationTypeAlert|UIUserNotificationTypeSound categories:nil]];
+    }
+…
 }
 ```
 
-Synchronize your build.gradle to apply the modifications.
 
-[x] Add to build.gradle file from Module app :
+[x] Entry point for localNotifications in the application:
 
-```javascript
-dependencies {
-   ...
-   compile 'com.socialretail.sdk:android-socialretail:2.0.0'
-   ...
+```c#
+-(void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification {
+    //Add these lines in the beginning of this method    
+    UIApplicationState state = [application applicationState];
+    NSDictionary * notifDict= notification.userInfo;
+    [[SRBeaconManager sharedManager]showNotificationWithUserInfo:notifDict state:state];
+    …
 }
 ```
 
-Synchronize your build.gradle to apply the modifications.
+[x] Link the AD Web View in your application root. To do so, implement your showWebViewController method like this:
 
-[x] Create new class inherited from Application class of Android SDK and add the next lines to the OnCreate method. Lets call it **DsrSdk**:
-
-```java
-import android.app.Application;
-import com.socialretail.sdk.SRBeaconManager;
-import org.altbeacon.beacon.startup.RegionBootstrap;
-
-public class DsrSdk extends Application {
-   private RegionBootstrap regionBootstrap;
-   @Override
-   public void onCreate(){
-       super.onCreate();
-       SRBeaconManager srBeaconManager = SRBeaconManager.getInstance();
-       srBeaconManager.SetContext(this.getApplicationContext());
-       srBeaconManager.setSettings(this);
-   }
-}
-```
-
-[x] Add the MainApplication class to your android manifest xml file:
-
-```xml
-<application
-android:name=".DsrSdk"
-android:label="@string/app_name"
-...
->
-```
-
-[x] In the Main Activity class add these imports:
-
-```java
-import android.Manifest;
-import android.content.DialogInterface;
-import android.content.pm.PackageManager;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-
-import com.socialretail.sdk.SRBeaconManager;
-
-import java.util.ArrayList;
-import java.util.List;
-```
-
-[x] In the Main Activity class add these fields and method:
-
-```java
-private static final int MY_PERMISSIONS_REQUEST = 26;
-private static boolean arePermissionGranted = false;
-SRBeaconManager srBeaconManager;
-
-public void LoadBeaconScan()
+```c#
+-(void)showWebViewController:(SRWebViewController *)webViewController
 {
-   srBeaconManager=SRBeaconManager.getInstance();
-   srBeaconManager.mContext=MainActivity.this;
-   srBeaconManager.fragmentActivity=this;
-   srBeaconManager.loadBeaconScan();
-}
-
-```
-[x] Override method onPause of your Main Activity class:
-
-```java
-@Override
-public void onPause() {
-   super.onPause();
-...
-   if(arePermissionGranted)
-srBeaconManager.SetForeGroundModePause();
-...
+    if([[[[UIApplication sharedApplication]delegate]window].rootViewController isKindOfClass:[UINavigationController class]])
+    {
+        UINavigationController *navController=(UINavigationController*)    [[[UIApplication sharedApplication]delegate]window].rootViewController;
+        
+        [navController pushViewController:webViewController animated:YES];
+    }
+    else
+    {
+        UIViewController *navController=(UIViewController*)    [[[UIApplication sharedApplication]delegate]window].rootViewController;
+        [navController presentViewController:webViewController animated:YES completion:^{
+            
+        }];
+    }
 }
 ```
 
-[x] Override method onResume of your MainActivity Class:
+[x] Set application state for applicationWillResignActive:
 
-```java
-@Override
-public void onResume() {
-   super.onResume();
-...
-   if(arePermissionGranted){
-srBeaconManager.SetForeGroundModeOnResume();
-   	srBeaconManager=SRBeaconManager.getInstance();
-   	srBeaconManager.mContext=MainActivity.this;
-   	srBeaconManager.fragmentActivity=this;
-   }
-
-...
+```c#
+- (void)applicationWillResignActive:(UIApplication *)application {
+    //Add this line in the beginning of this method
+    [[SRBeaconManager sharedManager]willResignActive];
+      …
 }
 ```
 
-[x] Override method onDestroy of your MainActivity Class:
+[x] Set application state for applicationDidBecomeActive:
 
-```java
-@Override
-protected void onDestroy() {
-   super.onDestroy();
-...
-   if(arePermissionGranted)
-       srBeaconManager.cleanup();
-...
+```c#
+- (void)applicationDidBecomeActive:(UIApplication *)application {
+    //Add this line in the beginning of this method
+    [[SRBeaconManager sharedManager]didBecomeActive];
 }
 ```
 
-[x] Add in the onCreate method of your MainActivity Class:
+[x] Set application state for applicationWillTerminate:
 
-```java
-@Override
-protected void onCreate(Bundle savedInstanceState) {
-   super.onCreate(savedInstanceState);
-   setContentView(R.layout.activity_main);
-...
-//  Managing of permissions
-if(android.os.Build.VERSION.SDK_INT < 23){
-   arePermissionGranted = true;
-   //call load beacon scan
-   this.LoadBeaconScan();
-
-}else {
-   List<String> permissionsList = new ArrayList<>();
-
-   if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED )
-       permissionsList.add(Manifest.permission.ACCESS_FINE_LOCATION);
-   if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED )
-       permissionsList.add(Manifest.permission.ACCESS_COARSE_LOCATION);
-   if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED )
-       permissionsList.add(Manifest.permission.READ_PHONE_STATE);
-   if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH) != PackageManager.PERMISSION_GRANTED )
-       permissionsList.add(Manifest.permission.BLUETOOTH);
-   if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_ADMIN) != PackageManager.PERMISSION_GRANTED )
-       permissionsList.add(Manifest.permission.BLUETOOTH_ADMIN);
-
-   if (permissionsList.size() > 0)
-       ActivityCompat.requestPermissions(this, permissionsList.toArray(new String[permissionsList.size()]), MY_PERMISSIONS_REQUEST);
-   else {
-       arePermissionGranted = true;
-       //call load beacon scan
-       this.LoadBeaconScan();
-   }
-}
-...
+```c#
+- (void)applicationWillTerminate:(UIApplication *)application {
+    //Add this line in the beginning of this method    
+    [[SRBeaconManager sharedManager]willTerminate];
 }
 ```
 
-[x] Implement onRequestPermissionsResult method in your MainActivity Class:
+[x] Stop the location when the app goes to background:
 
-```java
-@Override
-public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-   boolean tmpPermissionGranted = true;
-   switch (requestCode){
-       case MY_PERMISSIONS_REQUEST:
-           if (grantResults.length > 0){
-               for (int permission: grantResults ) {
-                   if (permission != PackageManager.PERMISSION_GRANTED){
-                       tmpPermissionGranted = false;
-                       break;
-                   }
-               }
-           }else {
-               //  Denied
-               tmpPermissionGranted = false;
-           }
-
-           if (!tmpPermissionGranted){
-               final android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(this);
-               builder.setTitle("Permission");
-               builder.setMessage("This permission is required to use the Social Retail SDK.");
-               builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                   @Override
-                   public void onClick(DialogInterface dialog, int which) {
-                       finish();
-                   }
-               });
-               builder.setCancelable(false);
-               builder.show();
-           }else{
-               //call load beacon scan
-               this.LoadBeaconScan();
-               arePermissionGranted = true;
-           }
-           break;
-       default:
-   }
+```c#
+- (void)applicationDidEnterBackground:(UIApplication *)application {
+    //Add this line in the beginning of this method    
+    [[SRBeaconManager sharedManager]stopLocation];
 }
-```
+```c#
 
-[x] Add permissions to Android manifest under tag <manifest > :
+## Miscellaneous
+If you get this error : *...SocialRetailSRSDK.framework/SocialRetailSRSDK(WebServiceManager.o)' does not contain bitcode*, You must rebuild it with bitcode enabled (Xcode setting ENABLE_BITCODE), obtain an updated library from the vendor, or disable bitcode for this target. for architecture arm64 clang: error: linker command failed with exit code 1 (use -v to see invocation)
+Just change Enable bitcode from Yes to No
 
-```xml
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-   package="...">
-...
-<uses-permission android:name="android.permission.INTERNET" />
-<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-<uses-permission android:name="android.permission.VIBRATE" />
-<uses-permission android:name="android.permission.WAKE_LOCK" />
-<uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
-<uses-permission android:name="android.permission.SET_DEBUG_APP" />
-<uses-permission android:name="com.app.aircaraibes.permission.MAPS_RECEIVE" />
-<uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
-<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-<uses-permission android:name="android.permission.READ_PHONE_STATE" />
-<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-<uses-permission android:name="android.permission.BLUETOOTH" />
-<uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
-...
-</manifest>
-```
 
-[x] Please attach also contents in the build.gradle (Module app) like the Reference application DemoApp.
+-   Congratulations, you already integrated Digital Social Retail SDK in to your application.   -
 
-```javascript
-android {
- ...
- packagingOptions {
-   exclude 'META-INF/DEPENDENCIES'
-   exclude 'META-INF/NOTICE'
-   exclude 'META-INF/LICENSE'
-   exclude 'META-INF/LICENSE.txt'
-   exclude 'META-INF/NOTICE.txt'
- }
+## Test your app
 
- defaultConfig{
-	...
-	minSdkVersion 18
-	targetSdkVersion 23
-	multiDexEnabled true
-	...
- }
-}
-```
+To do so, you need to have one Social Retail beacon with you, configured with a notification message, near your device. Make sure to have internet connexion in your device and Bluetooth activated. Launch your app, accept to receive notifications and after 1-5 seconds, you should receive the notification. Then tap on ok and you should see the Ad in full screen. Tap on the button “<” in the header and the Ad should disappear.
 
-Synchronize your build.gradle to apply the modifications.
+Lock your device, wait few seconds and unlock it. Then you should see your app icon in the bottom left of the screen. You can now close the app.
 
-[x] In your styles.xml file, in the style section used by your application theme (defined in your AndroidManifest.xml, in the <application> section, in the android:theme value), you have to add these 2 item tags and to make inherit your theme from AppCompat theme:
+If you need any support, feel free to contact our IT teams by simply sending them a email to support@digitalsocialretail.com or calling this number: +33(0)1 73 54 75 00
 
-```xml
-<style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-   <!-- Customize your theme here. -->
-   ...
-   <item name="windowActionBar">false</item>
-   <item name="windowNoTitle">true</item>
-   ...
-</style>
-```
-Congratulations, you already integrated Digital Social Retail SDK in to your application.   -
-
-## 3. Test your app
-
-To do so, you need to have one Social Retail beacon with you, configured with a notification message, near your device. Make sure to have internet connexion in your device and Bluetooth activated. Launch your app, accept to receive notifications and after 1-5 seconds, you should receive the notification. Then tap on ok and you should see the Ad in full screen. Tap on the button Cancel in the header and the Ad should disappear.
-
-If you need any support, feel free to contact our IT teams by simply sending them a email to support@digitalsocialretail.com
 
 All the best
 Digital Social Retail R&D team
