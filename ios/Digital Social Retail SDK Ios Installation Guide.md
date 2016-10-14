@@ -155,7 +155,7 @@ To do so, you need to have one Social Retail beacon with you, configured with a 
 
 Lock your device, wait few seconds and unlock it. Then you should see your app icon in the bottom left of the screen. You can now close the app.
 
-If you need any support, feel free to contact our IT teams by simply sending them a email to support@digitalsocialretail.com or calling this number: +33(0)1 73 54 75 00
+If you need any support, feel free to contact our IT teams by simply sending them a email to support@digitalsocialretail.com
 
 
 All the best
