@@ -27,7 +27,7 @@ It contains 2 files:
 
 [x] Build settings: Go to your application Targets ->Build Settings ->Other Linker Flags and set it to: *-all_load -ObjC* like indicated in this screenshot:
 ![DSR build settings](res/build-settings.png)
-
+
 ## info.Plist settings
 
 [x] ]Add these rows :
@@ -39,33 +39,27 @@ It contains 2 files:
 Your info.plist should looks like:
 ![DSR build settings](res/info-plist.png)
 
-
-
-
-
-
-
 ## Modifications to AppDelgate.h
 
 [x] Import the SDK headers: Add these 3 imports:
 
-```c#
+```Objective-C
 #import <SocialRetailSRSDK/SRBeaconDelegate.h>
 #import <SocialRetailSRSDK/SRBeaconManager.h>
 #import <SocialRetailSRSDK/SRWebViewController.h>
 ```
 
 [x] Set the protocol SRBeaconDelegate like this:
-```c#
+
+```Objective-C
 @interface AppDelegate : NSObject <…,SRBeaconDelegate>
 ```
-
-## Modifications to AppDelegate.m
 
+## Modifications to AppDelegate.m
 
 [x] Main entry point:
 
-```c#
+```Objective-C
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     //Add these lines in the beginning of this method
     [[SRBeaconManager sharedManager]startBeconDetection];
@@ -80,7 +74,7 @@ Your info.plist should looks like:
 
 [x] Entry point for localNotifications in the application:
 
-```c#
+```Objective-C
 -(void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification {
     //Add these lines in the beginning of this method    
     UIApplicationState state = [application applicationState];
@@ -92,7 +86,7 @@ Your info.plist should looks like:
 
 [x] Link the AD Web View in your application root. To do so, implement your showWebViewController method like this:
 
-```c#
+```Objective-C
 -(void)showWebViewController:(SRWebViewController *)webViewController
 {
     if([[[[UIApplication sharedApplication]delegate]window].rootViewController isKindOfClass:[UINavigationController class]])
@@ -113,7 +107,7 @@ Your info.plist should looks like:
 
 [x] Set application state for applicationWillResignActive:
 
-```c#
+```Objective-C
 - (void)applicationWillResignActive:(UIApplication *)application {
     //Add this line in the beginning of this method
     [[SRBeaconManager sharedManager]willResignActive];
@@ -123,7 +117,7 @@ Your info.plist should looks like:
 
 [x] Set application state for applicationDidBecomeActive:
 
-```c#
+```Objective-C
 - (void)applicationDidBecomeActive:(UIApplication *)application {
     //Add this line in the beginning of this method
     [[SRBeaconManager sharedManager]didBecomeActive];
@@ -141,7 +135,7 @@ Your info.plist should looks like:
 
 [x] Stop the location when the app goes to background:
 
-```c#
+```Objective-C
 - (void)applicationDidEnterBackground:(UIApplication *)application {
     //Add this line in the beginning of this method    
     [[SRBeaconManager sharedManager]stopLocation];
