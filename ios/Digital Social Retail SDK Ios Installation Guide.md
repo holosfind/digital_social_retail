@@ -126,7 +126,7 @@ Your info.plist should looks like:
 
 [x] Set application state for applicationWillTerminate:
 
-```c#
+```Objective-C
 - (void)applicationWillTerminate:(UIApplication *)application {
     //Add this line in the beginning of this method    
     [[SRBeaconManager sharedManager]willTerminate];
@@ -140,7 +140,7 @@ Your info.plist should looks like:
     //Add this line in the beginning of this method    
     [[SRBeaconManager sharedManager]stopLocation];
 }
-```c#
+```
 
 ## Miscellaneous
 If you get this error : *...SocialRetailSRSDK.framework/SocialRetailSRSDK(WebServiceManager.o)' does not contain bitcode*, You must rebuild it with bitcode enabled (Xcode setting ENABLE_BITCODE), obtain an updated library from the vendor, or disable bitcode for this target. for architecture arm64 clang: error: linker command failed with exit code 1 (use -v to see invocation)
