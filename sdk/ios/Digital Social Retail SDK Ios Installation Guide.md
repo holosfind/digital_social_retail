@@ -33,7 +33,7 @@ It contains 2 files:
 
 [x] ]Add these rows :
 
-- **NSLocationAlwaysUsageDescription** : <put your text, You can customise the text of the field NSLocationAlwaysUsageDescription>
+- **NSLocationAlwaysUsageDescription** : put your text, You can customise the text of the field NSLocationAlwaysUsageDescription
 - **Required background modes > Item 0 : App downloads content from the internet**
 - **App Transport Security Settings > Allow Arbitrary Loads : YES**
 
