@@ -15,7 +15,7 @@ Requirements:
 
 ## Getting started
 
-[x] Download and Unzip this file : [Download](res/Digital_Social_Retail_SDK_iOS_v2.2.zip)
+[x] Download and Unzip this file : [Download](res/Digital_Social_Retail_SDK_iOS_v2.2.0.zip)
 
 It contains 2 files:
 - **SocialRetailSRSDK.framework**: this file contains the public headers that will be used to integrate the sdk in to your application.
