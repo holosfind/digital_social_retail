@@ -3,20 +3,19 @@
 # Digital Social Retail SDK Ios Installation Guide
 Technical support: support@digitalsocialretail.com
 
-Last production version : 2.1.1 - 10 april 2016
-
+Last production version : 2.2.0 - 26 December 2016
 
 ## 1. Introduction
 
 This document is destined to the iOS developer of your app and will guide him to install Digital Social Retail SDK in to your iOS app. The operation should be really simple, because you just need to add entry points into your AppDelegate.h, AppDelegate.m and info.Plist files. No other files will be modified.
 
 Requirements: 
-  - Xcode 6 or later
-  - The SDK is compatible with iOS 7.1 or later
+- Xcode 6 or later
+- The SDK is compatible with iOS 7.1 or later
 
 ## Getting started
 
-[x] Download and Unzip this file : [Download](res/Digital_Social_Retail_SDK_iOS_v2.1.1.zip)
+[x] Download and Unzip this file : [Download](res/Digital_Social_Retail_SDK_iOS_v2.2.zip)
 
 It contains 2 files:
 - **SocialRetailSRSDK.framework**: this file contains the public headers that will be used to integrate the sdk in to your application.
@@ -33,9 +32,13 @@ It contains 2 files:
 
 [x] ]Add these rows :
 
-- **NSLocationAlwaysUsageDescription** : put your text, You can customise the text of the field NSLocationAlwaysUsageDescription
-- **Required background modes > Item 0 : App downloads content from the internet**
+- **NSLocationAlwaysUsageDescription** : < put your text, You can customise the text of the field NSLocationAlwaysUsageDescription >
+- **NSLocationWhenInUseUsageDescription** : < put your text, You can customise the text of the field NSLocationWhenInUseUsageDescription >
 - **App Transport Security Settings > Allow Arbitrary Loads : YES**
+- **Required background modes > Item 0 : App communicates using CoreBluetooth**
+- **Required background modes > Item 1 : App downloads content from the network**
+- **Required background modes > Item 2 : App registers for location updates**
+
 
 Your info.plist should looks like:
 ![DSR build settings](res/info-plist.png)
@@ -62,12 +65,12 @@ Your info.plist should looks like:
 
 ```Objective-C
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    //Add these lines in the beginning of this method
-    [[SRBeaconManager sharedManager]startBeconDetection];
-    [[SRBeaconManager sharedManager]setBeaconDelegate:self];
-    if ([UIApplication instancesRespondToSelector:@selector(registerUserNotificationSettings:)]) {
-        [[UIApplication sharedApplication] registerUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:UIUserNotificationTypeAlert|UIUserNotificationTypeSound categories:nil]];
-    }
+//Add these lines in the beginning of this method
+[[SRBeaconManager sharedManager]startBeconDetection];
+[[SRBeaconManager sharedManager]setBeaconDelegate:self];
+if ([UIApplication instancesRespondToSelector:@selector(registerUserNotificationSettings:)]) {
+[[UIApplication sharedApplication] registerUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:UIUserNotificationTypeAlert|UIUserNotificationTypeSound categories:nil]];
+}
 …
 }
 ```
@@ -77,11 +80,11 @@ Your info.plist should looks like:
 
 ```Objective-C
 -(void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification {
-    //Add these lines in the beginning of this method    
-    UIApplicationState state = [application applicationState];
-    NSDictionary * notifDict= notification.userInfo;
-    [[SRBeaconManager sharedManager]showNotificationWithUserInfo:notifDict state:state];
-    …
+//Add these lines in the beginning of this method    
+UIApplicationState state = [application applicationState];
+NSDictionary * notifDict= notification.userInfo;
+[[SRBeaconManager sharedManager]showNotificationWithUserInfo:notifDict state:state];
+…
 }
 ```
 
@@ -90,19 +93,19 @@ Your info.plist should looks like:
 ```Objective-C
 -(void)showWebViewController:(SRWebViewController *)webViewController
 {
-    if([[[[UIApplication sharedApplication]delegate]window].rootViewController isKindOfClass:[UINavigationController class]])
-    {
-        UINavigationController *navController=(UINavigationController*)    [[[UIApplication sharedApplication]delegate]window].rootViewController;
-        
-        [navController pushViewController:webViewController animated:YES];
-    }
-    else
-    {
-        UIViewController *navController=(UIViewController*)    [[[UIApplication sharedApplication]delegate]window].rootViewController;
-        [navController presentViewController:webViewController animated:YES completion:^{
-            
-        }];
-    }
+if([[[[UIApplication sharedApplication]delegate]window].rootViewController isKindOfClass:[UINavigationController class]])
+{
+UINavigationController *navController=(UINavigationController*)    [[[UIApplication sharedApplication]delegate]window].rootViewController;
+
+[navController pushViewController:webViewController animated:YES];
+}
+else
+{
+UIViewController *navController=(UIViewController*)    [[[UIApplication sharedApplication]delegate]window].rootViewController;
+[navController presentViewController:webViewController animated:YES completion:^{
+
+}];
+}
 }
 ```
 
@@ -110,9 +113,9 @@ Your info.plist should looks like:
 
 ```Objective-C
 - (void)applicationWillResignActive:(UIApplication *)application {
-    //Add this line in the beginning of this method
-    [[SRBeaconManager sharedManager]willResignActive];
-      …
+//Add this line in the beginning of this method
+[[SRBeaconManager sharedManager]willResignActive];
+…
 }
 ```
 
@@ -120,8 +123,8 @@ Your info.plist should looks like:
 
 ```Objective-C
 - (void)applicationDidBecomeActive:(UIApplication *)application {
-    //Add this line in the beginning of this method
-    [[SRBeaconManager sharedManager]didBecomeActive];
+//Add this line in the beginning of this method
+[[SRBeaconManager sharedManager]didBecomeActive];
 }
 ```
 
@@ -129,8 +132,8 @@ Your info.plist should looks like:
 
 ```Objective-C
 - (void)applicationWillTerminate:(UIApplication *)application {
-    //Add this line in the beginning of this method    
-    [[SRBeaconManager sharedManager]willTerminate];
+//Add this line in the beginning of this method    
+[[SRBeaconManager sharedManager]willTerminate];
 }
 ```
 
@@ -138,8 +141,8 @@ Your info.plist should looks like:
 
 ```Objective-C
 - (void)applicationDidEnterBackground:(UIApplication *)application {
-    //Add this line in the beginning of this method    
-    [[SRBeaconManager sharedManager]stopLocation];
+//Add this line in the beginning of this method    
+[[SRBeaconManager sharedManager]stopLocation];
 }
 ```
 
