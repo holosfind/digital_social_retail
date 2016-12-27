@@ -3,8 +3,7 @@
 # Digital Social Retail SDK Android Installation Guide
 Technical support: support@digitalsocialretail.com
 
-Last production version : 2.0.1 - 14 october 2016
-
+Last production version : 2.1.0 - 27 december 2016
 
 ## 1. Introduction
 
@@ -38,7 +37,7 @@ Synchronize your build.gradle to apply the modifications.
 ```javascript
 dependencies {
    ...
-   compile 'com.socialretail.sdk:android-socialretail:2.0.1'
+   compile 'com.socialretail.sdk:android-socialretail:2.1.0'
    ...
 }
 ```
@@ -171,8 +170,6 @@ if(android.os.Build.VERSION.SDK_INT < 23){
        permissionsList.add(Manifest.permission.ACCESS_FINE_LOCATION);
    if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED )
        permissionsList.add(Manifest.permission.ACCESS_COARSE_LOCATION);
-   if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED )
-       permissionsList.add(Manifest.permission.READ_PHONE_STATE);
    if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH) != PackageManager.PERMISSION_GRANTED )
        permissionsList.add(Manifest.permission.BLUETOOTH);
    if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_ADMIN) != PackageManager.PERMISSION_GRANTED )
@@ -241,16 +238,12 @@ public void onRequestPermissionsResult(int requestCode, @NonNull String[] permis
 ...
 <uses-permission android:name="android.permission.INTERNET" />
 <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+<uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
 <uses-permission android:name="android.permission.VIBRATE" />
 <uses-permission android:name="android.permission.WAKE_LOCK" />
-<uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
 <uses-permission android:name="android.permission.SET_DEBUG_APP" />
-<uses-permission android:name="com.app.aircaraibes.permission.MAPS_RECEIVE" />
-<uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
-<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-<uses-permission android:name="android.permission.READ_PHONE_STATE" />
 <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 <uses-permission android:name="android.permission.BLUETOOTH" />
 <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
@@ -273,7 +266,7 @@ android {
 
  defaultConfig{
 	...
-	minSdkVersion 18
+	minSdkVersion 14
 	targetSdkVersion 23
 	multiDexEnabled true
 	...
