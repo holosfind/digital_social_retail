@@ -3,7 +3,7 @@
 # Digital Social Retail iOS SDK Installation Guide. (Swift 3)
 Technical support: support@digitalsocialretail.com
 
-Last production version : 2.2.2 - 9 May 2017
+Last production version : 2.2.2 - 5 July 2017
 
 ## 1. Introduction
 
