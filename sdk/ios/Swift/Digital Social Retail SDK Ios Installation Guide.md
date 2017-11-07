@@ -33,9 +33,10 @@ like indicated in this screenshot:
 
 [x] ]Add these rows :
 
-- **NSLocationAlwaysUsageDescription** : < put your text, You can customise the text of the field NSLocationAlwaysUsageDescription >
-- **NSLocationWhenInUseUsageDescription** : < put your text, You can customise the text of the field NSLocationWhenInUseUsageDescription >
-- **NSBluetoothPeripheralUsageDescription** : < put your text, You can customise the text of the field NSBluetoothPeripheralUsageDescription >
+- **NSLocationAlwaysUsageDescription** : < put your text, You can customise the text of this key >
+- **NSLocationWhenInUseUsageDescription** : < put your text, You can customise the text of this key >
+- **NSLocationAlwaysAndWhenInUseUsageDescription** : < put your text, You can customise the text of this key >
+- **NSBluetoothPeripheralUsageDescription** : < put your text, You can customise the text of this key >
 - **App Transport Security Settings > Allow Arbitrary Loads : YES**
 - **Required background modes > Item 1 : App downloads content from the network**
 
