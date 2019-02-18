@@ -3,7 +3,7 @@
 # Digital Social Retail SDK Android Installation Guide
 Technical support: support@digitalsocialretail.com
 
-Last production version : 2.1.4 - 09 January 2017
+Last production version : 2.1.8 - 18 Febrary 2019
 
 ## 1. Introduction
 
@@ -37,7 +37,7 @@ Synchronize your build.gradle to apply the modifications.
 ```javascript
 dependencies {
    ...
-   compile 'com.socialretail.sdk:android-socialretail:2.1.4'
+   implementation 'com.socialretail.sdk:android-socialretail:2.1.8'
    ...
 }
 ```
@@ -59,6 +59,7 @@ public class DsrSdk extends Application {
        SRBeaconManager srBeaconManager = SRBeaconManager.getInstance();
        srBeaconManager.SetContext(this.getApplicationContext());
        srBeaconManager.setSettings(this);
+       srBeaconManager.setNotificationIcon(R.mipmap.ic_launcher);//Custom notification icon
    }
 }
 ```
