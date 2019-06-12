@@ -3,8 +3,6 @@
 # Digital Social Retail SDK Android Installation Guide
 Technical support: support@digitalsocialretail.com
 
-Last production version : 2.1.8 - 18 Febrary 2019
-
 ## 1. Introduction
 
 This document is destined to the Android developer of your app and will guide him to install Digital Social Retail SDK in to your android app. The operation should be really simple, because you just need to add entry points into your build.gradle files , Application Class  , Manifest and Main Activities . No other files will be modified.
