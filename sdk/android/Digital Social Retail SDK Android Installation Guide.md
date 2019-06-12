@@ -22,8 +22,8 @@ Requirements: **Android 4.3 or later**
 allprojects {  
   repositories {  
        ...
-       maven {
-		...
+       maven {		
+        ...
         url "https://digitalsocialretail.s3.amazonaws.com/sdk/android/prod"
        }
    }
@@ -44,22 +44,21 @@ dependencies {
 
 Synchronize your build.gradle to apply the modifications.
 
-[x] Create new class inherited from Application class of Android SDK and add the next lines to the OnCreate method. Lets call it **DsrSdk**:
+[x] Create new class inherited from Application class of Android SDK and add the next lines to the OnCreate method. Lets call it **MainApplication**:
 
 ```java
 import android.app.Application;
 import com.socialretail.sdk.SRBeaconManager;
-import org.altbeacon.beacon.startup.RegionBootstrap;
 
-public class DsrSdk extends Application {
-   private RegionBootstrap regionBootstrap;
+public class MainApplication extends Application {
+
    @Override
    public void onCreate(){
        super.onCreate();
-       SRBeaconManager srBeaconManager = SRBeaconManager.getInstance();
-       srBeaconManager.SetContext(this.getApplicationContext());
-       srBeaconManager.setSettings(this);
-       srBeaconManager.setNotificationIcon(R.mipmap.ic_launcher);//Custom notification icon
+       SRBeaconManager mSRBeaconManager = SRBeaconManager.getInstance();
+       mSRBeaconManager.setContext(this.getApplicationContext());
+       mSRBeaconManager.setNotificationIcon(R.mipmap.ic_launcher);
+       mSRBeaconManager.setSettings(this);
    }
 }
 ```
@@ -68,41 +67,58 @@ public class DsrSdk extends Application {
 
 ```xml
 <application
-android:name=".DsrSdk"
-android:label="@string/app_name"
+android:name=".MainApplication"
 ...
 >
 ```
 
-[x] In the Main Activity class add these imports:
+[x] In the MainActivity class add these imports:
 
 ```java
 import android.Manifest;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AppCompatActivity;
 
 import com.socialretail.sdk.SRBeaconManager;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 ```
 
-[x] In the Main Activity class add these fields and method:
+[x] In the MainActivity class add these fields and method:
 
 ```java
-private static final int MY_PERMISSIONS_REQUEST = 26;
+private static final int DSR_PERMISSIONS_REQUEST = 26;
+private SRBeaconManager mSRBeaconManager = null;
+private Timer myTimer;
 private static boolean arePermissionGranted = false;
-SRBeaconManager srBeaconManager;
 
-public void LoadBeaconScan()
-{
-   srBeaconManager=SRBeaconManager.getInstance();
-   srBeaconManager.mContext=MainActivity.this;
-   srBeaconManager.fragmentActivity=this;
-   srBeaconManager.loadBeaconScan();
+
+private void loadBeaconScan() {    
+    try {    
+        mSRBeaconManager = SRBeaconManager.getInstance();
+        mSRBeaconManager.mContext = MainActivity.this;        
+        mSRBeaconManager.fragmentActivity = this;        
+        mSRBeaconManager.loadBeaconScan();
+        myTimer = new Timer();
+        myTimer.schedule(new TimerTask() {
+        @Override
+        public void run() {
+        HashMap<String, String> hashmap =  mSRBeaconManager.getNearestBeacon();
+        
+        }
+        }, 0, 1000);    
+    } catch (Exception e) {
+        e.printStackTrace();    
+    }
 }
 
 ```
@@ -113,44 +129,65 @@ public void LoadBeaconScan()
 public void onPause() {
    super.onPause();
 ...
-   if(arePermissionGranted)
-srBeaconManager.SetForeGroundModePause();
+    if(arePermissionGranted)
+    mSRBeaconManager.SetForeGroundModePause();
+
+  try {        
+    if (mSRBeaconManager != null) {
+        mSRBeaconManager.appInBackground();
+    }    
+  } catch (Exception e) {
+      e.printStackTrace();    
+  }
 ...
 }
 ```
 
-[x] Override method onResume of your MainActivity Class:
+[x] Override method onResume of your MainActivity class:
 
 ```java
 @Override
 public void onResume() {
    super.onResume();
 ...
-   if(arePermissionGranted){
-srBeaconManager.SetForeGroundModeOnResume();
-   	srBeaconManager=SRBeaconManager.getInstance();
-   	srBeaconManager.mContext=MainActivity.this;
-   	srBeaconManager.fragmentActivity=this;
-   }
+    if(arePermissionGranted){
+        mSRBeaconManager.SetForeGroundModeOnResume();
+        mSRBeaconManager=SRBeaconManager.getInstance();
+        mSRBeaconManager.mContext=MainActivity.this;
+        mSRBeaconManager.fragmentActivity=this;
+    }
+    
+    try {
+        if (mSRBeaconManager != null) {
+            mSRBeaconManager.appInForeground();
+        }    
+    } catch (Exception e) {
+        e.printStackTrace();    
+    }
 
 ...
 }
 ```
 
-[x] Override method onDestroy of your MainActivity Class:
+[x] Override method onDestroy of your MainActivity class:
 
 ```java
 @Override
 protected void onDestroy() {
    super.onDestroy();
 ...
-   if(arePermissionGranted)
-       srBeaconManager.cleanup();
+    try {
+    if(arePermissionGranted && mSRBeaconManager != null) {
+            mSRBeaconManager.cleanup();
+    }
+    } catch (Exception e) {
+        e.printStackTrace();    
+    }
 ...
 }
 ```
 
-[x] Add in the onCreate method of your MainActivity Class:
+[x] Add in the onCreate method of your MainActivity class:
 
 ```java
 @Override
@@ -160,10 +197,8 @@ protected void onCreate(Bundle savedInstanceState) {
 ...
 //  Managing of permissions
 if(android.os.Build.VERSION.SDK_INT < 23){
-   arePermissionGranted = true;
-   //call load beacon scan
-   this.LoadBeaconScan();
-
+arePermissionGranted = true;
+    this.loadBeaconScan();
 }else {
    List<String> permissionsList = new ArrayList<>();
 
@@ -177,25 +212,24 @@ if(android.os.Build.VERSION.SDK_INT < 23){
        permissionsList.add(Manifest.permission.BLUETOOTH_ADMIN);
 
    if (permissionsList.size() > 0)
-       ActivityCompat.requestPermissions(this, permissionsList.toArray(new String[permissionsList.size()]), MY_PERMISSIONS_REQUEST);
+       ActivityCompat.requestPermissions(this, permissionsList.toArray(new String[permissionsList.size()]), DSR_PERMISSIONS_REQUEST);
    else {
+       this.loadBeaconScan();
        arePermissionGranted = true;
-       //call load beacon scan
-       this.LoadBeaconScan();
    }
 }
 ...
 }
 ```
 
-[x] Implement onRequestPermissionsResult method in your MainActivity Class:
+[x] Implement onRequestPermissionsResult method in your MainActivity class:
 
 ```java
 @Override
 public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
    boolean tmpPermissionGranted = true;
    switch (requestCode){
-       case MY_PERMISSIONS_REQUEST:
+       case DSR_PERMISSIONS_REQUEST:
            if (grantResults.length > 0){
                for (int permission: grantResults ) {
                    if (permission != PackageManager.PERMISSION_GRANTED){
@@ -221,8 +255,7 @@ public void onRequestPermissionsResult(int requestCode, @NonNull String[] permis
                builder.setCancelable(false);
                builder.show();
            }else{
-               //call load beacon scan
-               this.LoadBeaconScan();
+               this.loadBeaconScan();
                arePermissionGranted = true;
            }
            break;
@@ -239,13 +272,10 @@ public void onRequestPermissionsResult(int requestCode, @NonNull String[] permis
 ...
 <uses-permission android:name="android.permission.INTERNET" />
 <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+<uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>  
 <uses-permission android:name="android.permission.VIBRATE" />
 <uses-permission android:name="android.permission.WAKE_LOCK" />
-<uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
-<uses-permission android:name="android.permission.SET_DEBUG_APP" />
-<uses-permission android:name="com.app.aircaraibes.permission.MAPS_RECEIVE" />
-<uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
-<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
 <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -270,8 +300,8 @@ android {
 
  defaultConfig{
 	...
-	minSdkVersion 14
-	targetSdkVersion 23
+	minSdkVersion 21
+	targetSdkVersion 28
 	multiDexEnabled true
 	...
  }
