@@ -35,7 +35,7 @@ Synchronize your build.gradle to apply the modifications.
 ```javascript
 dependencies {
    ...
-   implementation 'com.socialretail.sdk:android-socialretail:2.1.8'
+   implementation 'com.socialretail.sdk:android-socialretail:2.1.9'
    ...
 }
 ```
